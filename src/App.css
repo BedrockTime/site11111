@@ -1,0 +1,221 @@
+@font-face {
+  font-family: "Roboto-Regular";
+  src: url(./components/fonts/roboto/Roboto-Regular.ttf);
+}
+
+@font-face {
+  font-family: "Roboto-Extralight";
+  src: url(./components/fonts/roboto/Roboto-ExtraLight.ttf);
+}
+
+@font-face {
+  font-family: "Roboto-Light";
+  src: url(./components/fonts/roboto/Roboto-Light.ttf);
+}
+
+@font-face {
+  font-family: "Roboto-SemiBold";
+  src: url(./components/fonts/roboto/Roboto-SemiBold.ttf);
+}
+
+@font-face {
+  font-family: "Roboto-Medium";
+  src: url(./components/fonts/roboto/Roboto-Medium.ttf);
+}
+body{
+  font-family: Roboto-Regular;
+  padding: 0px;
+  margin: 0px;
+}
+
+.backgr{
+  margin: 0px 100px 0px 100px;
+  padding-top: 50px;
+}
+
+.title{
+  font-family: Roboto-Medium;
+  font-size: 50px;
+}
+
+.link{
+  color: #e97d30;
+  text-decoration: none;
+  font-size: 20px;
+}
+
+.date{
+  margin-left: 6px;
+  opacity: 50%;
+}
+
+.container{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.sorter{
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 20px;
+}
+
+.checkbox{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.incheck{
+  margin-right: 15px;
+  appearance: none; 
+  width: 14px;       
+  height: 14px;     
+  border: 1px solid #e97d30;
+  border-radius: 3px; 
+  outline: none;  
+  cursor: pointer;
+  background-color: white;
+}
+
+.incheck:checked {
+  background-color: #e97d30;
+}
+
+.delete{
+  font-size: 30px;
+  color: grey;
+  margin: 0px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.img{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+.img_p{
+  margin: 0px;
+}
+
+.div_st1{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  border: 3px solid #b7b7b7;
+  border-radius: 10px;
+}
+
+.inputTitleCat{
+  margin-top: 24px;
+  width: 50%;
+  text-align: center;
+  padding: 10px 0px 10px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 30px;
+  font-family: Roboto-Regular;
+}
+
+.inputTitleCat:focus {
+    outline: none;
+}
+
+.savebutton {
+  color: #e97d30;
+  font-size: 20px;
+  cursor: pointer;
+  margin-top: 25px;
+}
+
+.stat_p{
+  margin-top: 0px;
+  margin-bottom: 20px;
+}
+
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.h1_categ{
+  margin: 0px; 
+}
+
+.df{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.donetasks{
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.cat_tasks {
+  margin: 7px 0px 8px;
+}
+
+.inputTitleList{
+  padding: 0px;
+  font-size: 30px;
+  font-family: Roboto-Regular;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.inputTitleList:focus {
+    outline: none;
+}
+
+.savebuttonLists {
+  color: #e97d30;
+  font-size: 20px;
+  cursor: pointer;
+  margin-top: 101px;
+  margin-bottom: 0px;
+}
+
+.osn{
+  margin-top: 50px;
+}
+
+.none{
+  user-select: none;
+}
+
+.addCircle20{
+  margin: 0px 11px 0px 1px;
+}
+
+.inputTitleTask{
+  margin-left: 32px;
+  font-size: 15px;
+  padding: 0px;
+  font-family: Roboto-Regular;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.inputTitleTask:focus {
+    outline: none;
+}
+
+.savetask{
+  font-size: 20px;
+  color: grey;
+  margin: 0px;
+  cursor: pointer;
+  user-select: none;
+}
