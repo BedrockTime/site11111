@@ -219,3 +219,80 @@ body{
   cursor: pointer;
   user-select: none;
 }
+
+.logIn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 25vh;
+}
+
+.h1_login {
+    font-family: Roboto-Light;
+}
+
+.window {
+  width: fit-content;
+  height: fit-content;
+  border-radius: 10px;
+  box-shadow: 1.5px 1.5px 5px rgba(172, 164, 164, 0.477);
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 20px 30px 20px 30px;
+  background-color: 'white';
+}
+
+.login_button {
+  border: none;
+  padding: 7px 7px 7px 7px;
+  margin-top: 20px;
+  color: white;
+  background-color: #e97d30;
+  border-radius: 10px;
+  width: fit-content;
+  height: fit-content;
+  font-size: 30px;
+  cursor: pointer;
+}
+
+.login_button_div{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.inputlogin {
+  margin-top: 20px;
+  width: max-content;
+  text-align: center;
+  padding: 10px 0px 10px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 30px;
+  font-family: Roboto-Regular;
+}
+
+.inputlogin:focus {
+  outline: none;
+}
+
+.back_button {
+  margin: 20px 0px 0px 0px;
+  cursor: pointer;
+  opacity: 50%;
+}
+
+.h1_login_osn {
+  margin: 0px;
+  font-family: Roboto-Light;
+  color: #e97d30;
+}
+
+.logout {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
