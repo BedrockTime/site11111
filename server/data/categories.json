@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1752734143483,
+    "name": "awd",
+    "icon_id": "src/components/icons/home.png"
+  },
+  {
+    "id": 1752734146401,
+    "name": "dwad",
+    "icon_id": "src/components/icons/shopping_cart.png"
+  },
+  {
+    "id": 1752739417030,
+    "name": "wwad",
+    "icon_id": "src/components/icons/home.png"
+  }
+]

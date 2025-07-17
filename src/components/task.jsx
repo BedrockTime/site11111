@@ -1,7 +1,7 @@
 import '../App.css'
 import { NavLink, useParams } from "react-router"
 import styled from 'styled-components';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import addCircle from './icons/add_circle_20.png';
 
   const Container = styled.div`
@@ -19,121 +19,167 @@ import addCircle from './icons/add_circle_20.png';
     cursor: ${props => props.construct ? 'pointer' : 'default'};
   `
 
-
-
 const Task = () => {
-  const cat = [
-    {
-      "id": 1,
-      "name": "Учёба",
-      "icon_id": "src/components/icons/home.png"
-    },
-    {
-      "id": 2,
-      "name": "Еда",
-      "icon_id": "src/components/icons/shopping_cart.png"
-    }
-  ]
-
-    const task_lists = [
-    {
-      "id": 1,
-      "title": "Подготовка к экзамену",
-      "category_id": 1,
-      "total_tasks": 5,
-      "done_tasks": 3
-    },
-    {
-      "id": 2,
-      "title": "gasdwad",
-      "category_id": 1,
-      "total_tasks": 5,
-      "done_tasks": 3
-    },
-    {
-      "id": 3,
-      "title": "gasdwadaaaaa",
-      "category_id": 1,
-      "total_tasks": 5,
-      "done_tasks": 5
-    },
-    {
-      "id": 4,
-      "title": "gaaaasdwadaaaaa",
-      "category_id": 2,
-      "total_tasks": 3,
-      "done_tasks": 5
-    }
-  ]
-
-  const startTasks_list = [
-    {
-        "id": 1,
-        "title": "fasadw",
-        "done": true,
-        "task_list_id": 1
-    },
-    {
-        "id": 2,
-        "title": "saawdwdw",
-        "done": false,
-        "task_list_id": 1
-    },
-    {
-        "id": 3,
-        "title": "ffffff",
-        "done": false,
-        "task_list_id": 1,
-    },
-    {
-        "id": 4,
-        "title": "ffffffadwadawd",
-        "done": false,
-        "task_list_id": 2,
-    }
-  ]
-
   const { id } = useParams()
   const listId = parseInt(id)
-  const [tasks_list, setTasks_list] = useState(startTasks_list)
-  let task_list = []
-  if (task_lists.find(el => el.id === listId) != undefined) {
-    task_list = task_lists.find(el => el.id === listId)
-  }
-  const catId = task_list.category_id
-  let category = []
-  if (cat.find(el => el.id === catId) != undefined) {
-    category = cat.find(el => el.id === catId)
-  }
-  const listTasks= tasks_list.filter(el => el.task_list_id === listId)
+  const [taskList, setTaskList] = useState({})
+  const [category, setCategory] = useState({})
+  const [tasks, setTasks] = useState([])
   const [adding, setAdding] = useState(false)
   const [newTitle, setNewTitle] = useState("")
 
-  const Update = () => {
-    const newId = tasks_list.length > 0 ? tasks_list[tasks_list.length - 1].id + 1 : 1
-    const newItem = {id: newId, title: newTitle, done: false, task_list_id: listId}
-    setTasks_list([...tasks_list, newItem])
-    setAdding(false)
-    setNewTitle("")
+
+  const getCat = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/categories', {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      })
+
+      if (!response.ok) {
+        throw new Error(`Ошибка при получении категорий: ${response.status}`)
+      }
+
+      const data = await response.json()
+      return data
+
+    } catch (error) {
+      console.error('Ошибка при обращении к серверу:', error)
+      return []
+    }
   }
 
-  const Delete = (elemId) => {
-    setTasks_list(tasks_list.filter(el => el.id != elemId))
+  const getTaskListById = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:3000/task-lists/${id}`, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      })
+
+      if (!response.ok) {
+        throw new Error(`Ошибка при получении списка задач: ${response.status}`)
+      }
+
+      const data = await response.json()
+      setTaskList(data)
+      return data
+
+    } catch (error) {
+      console.error('Ошибка при обращении к серверу:', error)
+      return {}
+    }
   }
+
+  const addNewTask = async (name, id) => {
+    try {
+      const response = await fetch('http://localhost:3000/tasks', {
+        method: 'POST',
+        headers: { 
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        'Content-Type': 'application/json',
+        },
+        body: JSON.stringify( {text: name, done: false , task_list_id: id} ),
+      })
+
+      const responseData = await response.json()
+
+      if (!response.ok) {
+        throw new Error("Ошибка добавления задачи:", responseData.message)
+      } else {
+        setTasks([...tasks, responseData])
+      }
+
+    } catch (error) {
+      console.error('Ошибка при обращении к серверу:', error)
+
+    } finally {
+      setAdding(false)
+      setNewTitle("")
+    }
+  }
+
+  const updateTask = async (id, name, done) => {
+    try {
+      const response = await fetch(`http://localhost:3000/tasks/${id}`, {
+        method: 'PUT',
+        headers: { 
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        'Content-Type': 'application/json',
+        }, 
+        body: JSON.stringify( {text: name, done: done} ),
+      })
+
+      const responseData = await response.json()
+
+      if (!response.ok) {
+        throw new Error("Ошибка изменения задачи:", responseData.message)
+      } else {
+        setTasks(tasks.map((el) => {
+          if (el.id === id) {
+            return {...el, text: responseData.text, done: responseData.done}
+           } else {
+            return el
+           }
+        }))
+      }
+
+    } catch (error) {
+      console.error('Ошибка при обращении к серверу:', error)
+    }
+  }
+
+  const Delete = async (elId) => {
+    try{
+      const response = await fetch(`http://localhost:3000/tasks/${elId}`, {
+        method: 'DELETE',
+        headers: { 
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+
+      const responseData = await response.json()
+
+      if (!response.ok) {
+        throw new Error("Ошибка удаления списка задач:", responseData.message)
+      } else {
+        console.log(responseData.message)
+        setTasks(tasks.filter(el => el.id != elId))
+      }
+
+    } catch (error) {
+      console.error('Ошибка при обращении к серверу:', error)
+    }
+  }
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [categ, taskListInf] = await Promise.all([getCat(), getTaskListById(listId)])
+        setCategory(categ.find(el => el.id === taskListInf.category_id))
+        setTasks(taskListInf.tasks)
+
+      } catch (error) {
+        console.error('Ошибка при загрузке данных:', error)
+    }}
+
+    fetchData()
+  }, [])
+
 
   return(
     <div className="backgr">
-      <NavLink to={`/categories/${task_list.category_id}`} end className="link">🡠  Go Back</NavLink>
+      <NavLink to={`/categories/${taskList.category_id}`} end className="link">🡠  Go Back</NavLink>
       <div>
-        <h1 className='title'>{task_list.title}</h1>
-        <p className='date'>{category.name} ⟶ {task_list.title}</p>
+        <h1 className='title'>{taskList.title}</h1>
+        <p className='date'>{category.name} ⟶ {taskList.title}</p>
         <div className='osn'>
-          {listTasks.map((el) => {
+          {tasks.map((el) => {
               return(
                 <Container key={el.id}>
                   <div className='checkbox'>
-                      <input type='checkbox' className='incheck' defaultChecked={el.done}/>
-                      <p className='none'>{el.title}</p>
+                      <input type='checkbox' className='incheck' defaultChecked={el.done} onChange={() => {updateTask(el.id, el.text, !el.done)}}/>
+                      <p className='none'>{el.text}</p>
                   </div>
                   <p className='delete' onClick={() => {Delete(el.id)}}>×</p>
                 </Container>
@@ -142,19 +188,19 @@ const Task = () => {
               <Container>
                 <input type="text" placeholder="Название" className='inputTitleTask' onChange={(el) => {setNewTitle(el.target.value)}} />
                 {(newTitle != "") ? (
-                  <p className='savetask' onClick={() => {Update()}}>✓</p>
+                  <p className='savetask' onClick={() => {addNewTask(newTitle, taskList.id)}}>✓</p>
                 ) : (
                   <div/>
                 )}
               </Container>
           ) : (
-              <Container construct onClick={() => {setAdding(true)}}>
-                <div className='checkbox'>
-                  <img src={addCircle} alt='painu vittuun!' className='addCircle20'/>
-                  <p construct>Добавить Задачу</p>
-                </div>
-                <div/>
-              </Container>
+            <Container construct onClick={() => {setAdding(true)}}>
+              <div className='checkbox'>
+                <img src={addCircle} alt='painu vittuun!' className='addCircle20'/>
+                <p construct>Добавить Задачу</p>
+              </div>
+              <div/>
+            </Container>
           )}
         </div>
       </div>

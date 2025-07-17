@@ -1,7 +1,7 @@
 import './App.css'
 import { NavLink} from "react-router";
 import styled from 'styled-components';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
   const Container = styled.div`
     width: 365px;
@@ -25,19 +25,6 @@ import { useState } from 'react';
   `
 
 const App = () => {
-  const startCat = [
-    {
-      "id": 1,
-      "name": "Учёба",
-      "icon_id": "src/components/icons/home.png"
-    },
-    {
-      "id": 2,
-      "name": "Еда",
-      "icon_id": "src/components/icons/shopping_cart.png"
-    }
-  ]
-
   const stats = [
     {
       "category_id": 1,
@@ -52,7 +39,6 @@ const App = () => {
   ]
 
   var date = new Date()
-  const [cat, setCat] = useState(startCat)
   const [adding, setAdding] = useState(false)
   const [addPicture, setAddPicture] = useState(false)
   const [picture, setPicture] = useState("")
@@ -63,20 +49,8 @@ const App = () => {
   const [password, setPassword] = useState("")
   const [username, setUsername] = useState("")
   const [regSuc, setRegSuc] = useState("")
-  const [token, setToken] = useState("")
+  const [cat, setCat] = useState([])
 
-  const AddNew = () => {
-    setAdding(true)
-  }
-
-  const Update = () => {
-    const newId = cat.length > 0 ? cat[cat.length - 1].id + 1 : 1
-    const newItem = {id: newId, name: newTitle, icon_id: picture}
-    setCat([...cat, newItem])
-    setAdding(false)
-    setPicture("")
-    setNewTitle("")
-  }
 
   const handleLogin = async (email, password) => {
     try {
@@ -95,7 +69,6 @@ const App = () => {
 
       const data = await response.json();
       localStorage.setItem('token', data.access_token)
-      setToken(data.access_token)
       setError(null)
     } catch (err) {
       setError(err.message || 'Произошла ошибка при входе')
@@ -125,6 +98,57 @@ const App = () => {
       setError(err.message || 'Произошла ошибка при регистрации')
   }}
 
+  const getCat = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/categories', {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      })
+      if (!response.ok) {
+        throw new Error(`Ошибка при получении категорий: ${response.status}`)
+      }
+      const data = await response.json()
+      setCat(data)
+    } catch (error) {
+      console.error('Ошибка при обращении к серверу:', error)
+    }
+  }
+
+  const addNewCat = async (name, icon_id) => {
+    try {
+      const response = await fetch('http://localhost:3000/categories', {
+        method: 'POST',
+        headers: { 
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        'Content-Type': 'application/json',
+        },
+        body: JSON.stringify( {name: name, icon_id: icon_id} ),
+      })
+
+      const responseData = await response.json()
+
+      if (!response.ok) {
+        throw new Error("Ошибка редактирования категорий:", responseData.message)
+      } else {
+        setCat([...cat, responseData])
+      }
+    } catch (error) {
+      console.error('Ошибка при обращении к серверу:', error)
+    }
+  }
+
+
+  const AddNew = () => {
+    setAdding(true)
+  }
+
+  const Update = () => {
+    addNewCat(newTitle, picture)
+    setAdding(false)
+    setPicture("")
+    setNewTitle("")
+  }
+
   const manualLogOut = () =>{
     setUsername("")
     setPassword("")
@@ -133,7 +157,6 @@ const App = () => {
     setError("")
     setRegSuc("")
     localStorage.removeItem('token')
-    setToken("")
   }
 
   const backButton = () => {
@@ -143,6 +166,12 @@ const App = () => {
     setUsername("")
     setPassword("")
   }
+
+  useEffect(() => {
+    if (localStorage.getItem("token") != "") {
+      getCat()
+    }
+  }, [])
 
   return(
     <div className="backgr">

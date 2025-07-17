@@ -42,82 +42,147 @@ import addCircle from './icons/add_circle.png';
   `
 
 const Categories = () => {
-  const cat = [
-    {
-      "id": 1,
-      "name": "Учёба",
-      "icon_id": "src/components/icons/home.png"
-    },
-    {
-      "id": 2,
-      "name": "Еда",
-      "icon_id": "src/components/icons/shopping_cart.png"
-    }
-  ]
-
-  const startTask_list = [
-    {
-      "id": 1,
-      "title": "Подготовка к экзамену",
-      "category_id": 1,
-      "total_tasks": 5,
-      "done_tasks": 3
-    },
-    {
-      "id": 2,
-      "title": "gasdwad",
-      "category_id": 1,
-      "total_tasks": 5,
-      "done_tasks": 3
-    },
-    {
-      "id": 3,
-      "title": "gasdwadaaaaa",
-      "category_id": 1,
-      "total_tasks": 5,
-      "done_tasks": 5
-    },
-    {
-      "id": 4,
-      "title": "gaaaasdwadaaaaa",
-      "category_id": 2,
-      "total_tasks": 3,
-      "done_tasks": 5
-    }
-  ]
-
   const { id } = useParams()
+  const [cat, setCat] = useState([])
   const catId = parseInt(id)
   let category = []
   if (cat.find(el => el.id === catId) != undefined) {
     category = cat.find(el => el.id === catId)
   }
-  const [task_list, setTask_list] = useState(startTask_list)
-  const catTaskList = task_list.filter(el => el.category_id === catId)
+  const [catTaskList, setCatTaskList] = useState([])
   const [sortedtasks, setSortedTasks] = useState(catTaskList)
   const [sorter, setSorter] = useState(true)
   const [adding, setAdding] = useState(false)
   const [newTitle, setNewTitle] = useState("")
+
+
+  const getCat = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/categories', {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      })
+      if (!response.ok) {
+        throw new Error(`Ошибка при получении категорий: ${response.status}`)
+      }
+      const data = await response.json()
+      setCat(data)
+    } catch (error) {
+      console.error('Ошибка при обращении к серверу:', error)
+    }
+  }
+
+  const getTaskListById = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:3000/task-lists/${id}`, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      })
+      if (!response.ok) {
+        throw new Error(`Ошибка при получении списка задач: ${response.status}`)
+      }
+      const data = await response.json()
+      return data
+    } catch (error) {
+      console.error('Ошибка при обращении к серверу:', error)
+      return {}
+    }
+  }
+
+  const getTaskList = async () => {
+    try {
+      const response = await fetch(`http://localhost:3000/task-lists?category_id=${catId}`, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      })
+      if (!response.ok) {
+        throw new Error(`Ошибка при получении списков задач: ${response.status}`)
+      }
+      let data = await response.json()
+      const taskListPromise = data.map(async (el) => {
+        try {
+          const update = await getTaskListById(el.id)
+          return {...el, tasks: update.tasks}
+        } catch(error) {
+          console.error(`Ошибка обработки списка задач с ID ${el.id}:`, error);
+          return { ...el, tasks: [] }
+        }})
+      data = await Promise.all(taskListPromise)
+      setCatTaskList(data)
+    } catch (error) {
+      console.error('Ошибка при обращении к серверу:', error)
+    }
+  }
+
+  const addNewTaskList = async (name, id) => {
+    try {
+      const response = await fetch('http://localhost:3000/task-lists', {
+        method: 'POST',
+        headers: { 
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        'Content-Type': 'application/json',
+        },
+        body: JSON.stringify( {title: name, category_id: id} ),
+      })
+
+      const responseData = await response.json()
+
+      if (!response.ok) {
+        throw new Error("Ошибка добавления списка задач:", responseData.message)
+      } else {
+        const pattern = {done_tasks: 0, total_tasks: 0, tasks: []}
+        Object.assign(responseData, pattern)
+        setCatTaskList([...catTaskList, responseData])
+      }
+    } catch (error) {
+      console.error('Ошибка при обращении к серверу:', error)
+    }
+  }
+
+  const Delete = async (elId) => {
+    try{
+      const response = await fetch(`http://localhost:3000/task-lists/${elId}`, {
+        method: 'DELETE',
+        headers: { 
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+
+      const responseData = await response.json()
+
+      if (!response.ok) {
+        throw new Error("Ошибка удаления списка задач:", responseData.message)
+      } else {
+        console.log(responseData.message)
+        setCatTaskList(catTaskList.filter(el => el.id != elId))
+      }
+    } catch (error) {
+      console.error('Ошибка при обращении к серверу:', error)
+    }
+  }
+
+
+  const Update = () => {
+    addNewTaskList(newTitle, catId)
+    setAdding(false)
+    setNewTitle("")
+  }
+
 
   useEffect(() => {
     if (sorter === false) {
       setSortedTasks(catTaskList.filter(el => el.total_tasks === el.done_tasks))
     } else {
       setSortedTasks(catTaskList)
+      console.log(catTaskList)
     }
-  }, [sorter, task_list])
+  }, [sorter, catTaskList])
 
-  const Update = () => {
-    const newId =  task_list.length > 0 ?  task_list[task_list.length - 1].id + 1 : 1
-    const newItem = {id: newId, title: newTitle, category_id: catId, total_tasks: 0, done_tasks: 0}
-    setTask_list([...task_list, newItem])
-    setAdding(false)
-    setNewTitle("")
-  }
+  useEffect(() => {
+    getCat()
+    getTaskList()
+  }, [])
 
-  const Delete = (elemId) => {
-    setTask_list(task_list.filter(el => el.id != elemId))
-  }
 
   return(
     <div className="backgr">
