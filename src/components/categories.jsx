@@ -25,6 +25,7 @@ import addCircle from './icons/add_circle.png';
     box-shadow: 1.5px 1.5px 5px rgba(172, 164, 164, 0.477);
     display: flex;
     align-items: ${props => props.construct ? 'center' : 'flex-start'};
+    justify-content: space-between;
     flex-direction: column;
     padding: ${props => props.construct ? '60px 20px 20px 20px' : '20px 20px 20px 20px'};
     margin: 10px 10px 10px 10px;
@@ -161,6 +162,36 @@ const Categories = () => {
     }
   }
 
+  const updateTask = async (id, name, done) => {
+    try {
+      const response = await fetch(`http://localhost:3000/tasks/${id}`, {
+        method: 'PUT',
+        headers: { 
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        'Content-Type': 'application/json',
+        }, 
+        body: JSON.stringify( {text: name, done: done} ),
+      })
+
+      const responseData = await response.json()
+
+      if (!response.ok) {
+        throw new Error("Ошибка изменения задачи:", responseData.message)
+      } else {
+        setTasks(tasks.map((el) => {
+          if (el.id === id) {
+            return {...el, text: responseData.text, done: responseData.done}
+           } else {
+            return el
+           }
+        }))
+      }
+
+    } catch (error) {
+      console.error('Ошибка при обращении к серверу:', error)
+    }
+  }
+
 
   const Update = () => {
     addNewTaskList(newTitle, catId)
@@ -201,27 +232,34 @@ const Categories = () => {
           {sortedtasks.map((el) => {
             return(
               <Container key={el.id}>
-                <div className='df'>
-                  <h1 className='h1_categ'>{el.title}</h1>
-                  <p className='delete' onClick={() => Delete(el.id)}>×</p>
-                </div>
-                <div className='df'>
-                  <div/>
-                  <p className='donetasks'>{el.done_tasks}/{el.total_tasks} Выполнено</p>
-                </div>
-                <Line/>
-                <div>
-                  <div className='checkbox'>
-                    <input type='checkbox' className='incheck' />
-                    <p className='cat_tasks'>Задача 1aaaaaaaaa</p>
+                <div className='content_100'>
+                  <div className='df'>
+                    <h1 className='h1_categ'>{el.title}</h1>
+                    <p className='delete' onClick={() => Delete(el.id)}>×</p>
                   </div>
-                  <div className='checkbox'>
-                    <input type='checkbox' className='incheck' />
-                    <p className='cat_tasks'>Задача 2aaaaaaaaa</p>
+                  <div className='df'>
+                    <div/>
+                    <p className='donetasks'>{el.done_tasks}/{el.total_tasks} Выполнено</p>
                   </div>
-                  <div className='checkbox'>
-                    <input type='checkbox' className='incheck' />
-                    <p className='cat_tasks'>Задача 3aaaaaaaaa</p>
+                  <Line/>
+                  <div>{(el.tasks[0] !== undefined) ? (
+                    <div className='checkbox'>
+                      <input type='checkbox' className='incheck' defaultChecked={el.tasks[0].done} onChange={() => {updateTask(el.tasks[0].id, el.tasks[0].text, !el.tasks[0].done)}}/>
+                      <p className='cat_tasks'>{el.tasks[0].text}</p>
+                    </div>
+                    ) : (<div></div>)}
+                    {(el.tasks[1] !== undefined) ? (
+                    <div className='checkbox'>
+                      <input type='checkbox' className='incheck' defaultChecked={el.tasks[1].done} onChange={() => {updateTask(el.tasks[1].id, el.tasks[1].text, !el.tasks[1].done)}}/>
+                      <p className='cat_tasks'>{el.tasks[1].text}</p>
+                    </div>
+                    ) : (<div></div>)}
+                    {(el.tasks[2] !== undefined) ? (
+                    <div className='checkbox'>
+                      <input type='checkbox' className='incheck' defaultChecked={el.tasks[2].done} onChange={() => {updateTask(el.tasks[2].id, el.tasks[2].text, !el.tasks[2].done)}}/>
+                      <p className='cat_tasks'>{el.tasks[2].text}</p>
+                    </div>
+                    ) : (<div></div>)}
                   </div>
                 </div>
                 <div className='df'>

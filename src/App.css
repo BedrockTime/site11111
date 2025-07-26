@@ -296,3 +296,7 @@ body{
   justify-content: space-between;
   align-items: center;
 }
+
+.content_100 {
+  width: 100%;
+}

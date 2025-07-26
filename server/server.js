@@ -74,9 +74,14 @@ app.get('/task-lists', auth, async (req, res) => {
     const { category_id } = req.query;
     let lists = await read(taskListsFile);
     if (category_id) lists = lists.filter(l => l.category_id == category_id);
+    const allTasks = await read(tasksFile);
     lists = lists.map(l => {
-        const tasks = require('./data/tasks.json').filter(t => t.task_list_id === l.id);
-        return { ...l, total_tasks: tasks.length, done_tasks: tasks.filter(t => t.done).length };
+        const tasks = allTasks.filter(t => t.task_list_id === l.id);
+        return {
+            ...l,
+            total_tasks: tasks.length,
+            done_tasks: tasks.filter(t => t.done).length
+        };
     });
     res.json(lists);
 });
